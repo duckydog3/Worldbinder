@@ -4,7 +4,24 @@
       "Bash(npm -v)",
       "Bash(git --version)",
       "Bash(npx --version)",
-      "Bash(npx --yes create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm --no-turbopack)"
+      "Bash(npx --yes create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm --no-turbopack)",
+      "Bash(npm install *)",
+      "Bash(npx --yes supabase --version)",
+      "Bash(docker --version)",
+      "Bash(where.exe psql *)",
+      "Bash(npx --yes supabase init)",
+      "Bash(mkdir -p \"C:\\\\Users\\\\canyo\\\\my-project\\\\src\\\\app\\\\\\(app\\)\\\\campaign\" \"C:\\\\Users\\\\canyo\\\\my-project\\\\src\\\\app\\\\\\(app\\)\\\\characters\\\\[id]\" \"C:\\\\Users\\\\canyo\\\\my-project\\\\src\\\\app\\\\\\(app\\)\\\\npcs\\\\[id]\" \"C:\\\\Users\\\\canyo\\\\my-project\\\\src\\\\app\\\\\\(app\\)\\\\lore\\\\[id]\" \"C:\\\\Users\\\\canyo\\\\my-project\\\\src\\\\app\\\\\\(app\\)\\\\journal\" \"C:\\\\Users\\\\canyo\\\\my-project\\\\src\\\\app\\\\\\(app\\)\\\\map\" \"C:\\\\Users\\\\canyo\\\\my-project\\\\src\\\\app\\\\\\(app\\)\\\\admin\" \"C:\\\\Users\\\\canyo\\\\my-project\\\\src\\\\components\")",
+      "Bash(npx tsc *)",
+      "Bash(xargs grep -l \"GenericSchema\\\\|GenericTable\")",
+      "Bash(NEXT_PUBLIC_SUPABASE_URL=\"https://placeholder.supabase.co\" NEXT_PUBLIC_SUPABASE_ANON_KEY=\"placeholder\" SUPABASE_SERVICE_ROLE_KEY=\"placeholder\" npm run build)",
+      "Bash(npm run *)",
+      "Bash(gh auth *)",
+      "Bash(gh --version)",
+      "Bash(npx --yes supabase projects list)",
+      "Read(//c/Users/canyo/.config/**)",
+      "Read(//c/Users/canyo/.supabase/**)",
+      "mcp__0f0c131f-944f-4c28-aa49-922cb43804cc__list_teams",
+      "Bash(git add *)"
     ]
   }
 }
