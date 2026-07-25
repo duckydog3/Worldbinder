@@ -15,11 +15,13 @@ export default async function NewLorePage({
   if (session.membership.role !== "dm") redirect("/lore");
 
   const supabase = await createClient();
-  const [{ data: characters }, { data: locations }, { data: npcs }] = await Promise.all([
-    supabase.from("characters").select("*").eq("campaign_id", session.campaign.id).order("sort_order"),
-    supabase.from("locations").select("*").eq("campaign_id", session.campaign.id).order("name"),
-    supabase.from("npcs").select("*").eq("campaign_id", session.campaign.id).order("name"),
-  ]);
+  const [{ data: characters }, { data: locations }, { data: npcs }, { data: allEntries }] =
+    await Promise.all([
+      supabase.from("characters").select("*").eq("campaign_id", session.campaign.id).order("sort_order"),
+      supabase.from("locations").select("*").eq("campaign_id", session.campaign.id).order("name"),
+      supabase.from("npcs").select("*").eq("campaign_id", session.campaign.id).order("name"),
+      supabase.from("lore_entries").select("*").eq("campaign_id", session.campaign.id).order("title"),
+    ]);
 
   const action = createLoreEntry.bind(null, session.campaign.id);
 
@@ -32,7 +34,12 @@ export default async function NewLorePage({
         </p>
       )}
       <form action={action} className="card-raised space-y-5 p-5">
-        <LoreFormFields characters={characters ?? []} locations={locations ?? []} npcs={npcs ?? []} />
+        <LoreFormFields
+          characters={characters ?? []}
+          locations={locations ?? []}
+          npcs={npcs ?? []}
+          allEntries={allEntries ?? []}
+        />
         <button type="submit" className="btn btn-primary">
           Create entry
         </button>

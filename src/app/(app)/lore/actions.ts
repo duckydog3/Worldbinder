@@ -6,12 +6,17 @@ import { createClient } from "@/lib/supabase/server";
 import type { LoreCategory, Visibility } from "@/lib/types/database";
 
 function loreFieldsFromForm(formData: FormData) {
+  const sortValue = String(formData.get("event_sort_value") ?? "").trim();
+
   return {
     title: String(formData.get("title") ?? "").trim(),
     category: String(formData.get("category") ?? "other") as LoreCategory,
+    parent_entry_id: String(formData.get("parent_entry_id") ?? "").trim() || null,
     player_visible_content: String(formData.get("player_visible_content") ?? "").trim() || null,
     related_location_id: String(formData.get("related_location_id") ?? "").trim() || null,
     related_npc_id: String(formData.get("related_npc_id") ?? "").trim() || null,
+    event_date_label: String(formData.get("event_date_label") ?? "").trim() || null,
+    event_sort_value: sortValue ? Number(sortValue) : null,
     visibility: String(formData.get("visibility") ?? "hidden") as Visibility,
     revealed_to_character_ids: formData.getAll("revealed_to_character_ids").map(String),
   };

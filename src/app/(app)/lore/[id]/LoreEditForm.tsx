@@ -12,12 +12,14 @@ export function LoreEditForm({
   characters,
   locations,
   npcs,
+  allEntries,
 }: {
   entry: LoreEntry;
   secrets: LoreSecrets | null;
   characters: Character[];
   locations: Location[];
   npcs: Npc[];
+  allEntries: LoreEntry[];
 }) {
   const [editing, setEditing] = useState(false);
   const action = updateLoreEntry.bind(null, entry.id, entry.campaign_id);
@@ -53,6 +55,7 @@ export function LoreEditForm({
         characters={characters}
         locations={locations}
         npcs={npcs}
+        allEntries={allEntries}
       />
       <div className="flex items-center justify-between">
         <div className="flex gap-2">

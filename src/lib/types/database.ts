@@ -117,6 +117,7 @@ export type NpcSecrets = {
 export type LoreEntry = {
   id: string;
   campaign_id: string;
+  parent_entry_id: string | null;
   title: string;
   category: LoreCategory;
   player_visible_content: string | null;
@@ -125,6 +126,8 @@ export type LoreEntry = {
   related_location_id: string | null;
   related_npc_id: string | null;
   image_url: string | null;
+  event_date_label: string | null;
+  event_sort_value: number | null;
   created_at: string;
   updated_at: string;
 };
