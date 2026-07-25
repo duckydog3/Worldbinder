@@ -69,6 +69,12 @@ export async function deleteLocation(locationId: string) {
   revalidatePath("/map");
 }
 
+export async function setLocationImage(locationId: string, path: string | null) {
+  const supabase = await createClient();
+  await supabase.from("locations").update({ image_url: path }).eq("id", locationId);
+  revalidatePath("/map");
+}
+
 export async function setMapImage(campaignId: string, url: string | null) {
   const supabase = await createClient();
   await supabase.from("campaigns").update({ map_image_url: url }).eq("id", campaignId);

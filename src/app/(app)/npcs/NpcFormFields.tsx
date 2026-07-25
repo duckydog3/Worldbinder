@@ -55,17 +55,6 @@ export function NpcFormFields({
           />
         </div>
         <div className="space-y-1">
-          <label className="label" htmlFor="portrait_url">
-            Portrait URL
-          </label>
-          <input
-            className="input"
-            id="portrait_url"
-            name="portrait_url"
-            defaultValue={npc?.portrait_url ?? ""}
-          />
-        </div>
-        <div className="space-y-1">
           <label className="label" htmlFor="last_known_location_id">
             Last known location
           </label>

@@ -15,7 +15,6 @@ function parseTags(raw: string): string[] {
 function npcFieldsFromForm(formData: FormData) {
   return {
     name: String(formData.get("name") ?? "").trim(),
-    portrait_url: String(formData.get("portrait_url") ?? "").trim() || null,
     role_occupation: String(formData.get("role_occupation") ?? "").trim() || null,
     status: String(formData.get("status") ?? "alive") as NpcStatus,
     tags: parseTags(String(formData.get("tags") ?? "")),
@@ -79,4 +78,13 @@ export async function deleteNpc(npcId: string) {
   await supabase.from("npcs").delete().eq("id", npcId);
   revalidatePath("/npcs");
   redirect("/npcs");
+}
+
+export async function setNpcImage(npcId: string, path: string | null) {
+  const supabase = await createClient();
+  await supabase.from("npcs").update({ portrait_url: path }).eq("id", npcId);
+
+  revalidatePath(`/npcs/${npcId}`);
+  revalidatePath("/npcs");
+  revalidatePath("/campaign");
 }

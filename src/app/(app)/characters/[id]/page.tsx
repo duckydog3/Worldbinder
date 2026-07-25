@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { getSessionContext } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
+import { getSignedImageUrl } from "@/lib/images";
+import { EntityImage } from "@/components/EntityImage";
 import { CharacterEditForm } from "./CharacterEditForm";
 
 export default async function CharacterDetailPage({
@@ -21,12 +23,14 @@ export default async function CharacterDetailPage({
 
   if (!character) notFound();
 
-  const canEdit = session.membership.role === "dm" || character.user_id === session.userId;
+  const isDm = session.membership.role === "dm";
+  const canEdit = isDm || character.user_id === session.userId;
+  const imageUrl = await getSignedImageUrl(character.portrait_url);
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex items-start gap-5">
-        <div className="h-24 w-24 shrink-0 rounded-full bg-surface-raised" />
+        <EntityImage url={imageUrl} alt={character.name} className="h-24 w-24 rounded-full" />
         <div>
           <h1 className="text-3xl font-semibold text-foreground">{character.name}</h1>
           {character.player_name && (
@@ -63,7 +67,7 @@ export default async function CharacterDetailPage({
         </a>
       )}
 
-      {canEdit && <CharacterEditForm character={character} />}
+      {canEdit && <CharacterEditForm character={character} isDm={isDm} />}
     </div>
   );
 }

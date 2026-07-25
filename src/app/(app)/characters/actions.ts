@@ -21,3 +21,12 @@ export async function updateCharacter(characterId: string, formData: FormData) {
   revalidatePath("/characters");
   revalidatePath("/campaign");
 }
+
+export async function setCharacterImage(characterId: string, path: string | null) {
+  const supabase = await createClient();
+  await supabase.from("characters").update({ portrait_url: path }).eq("id", characterId);
+
+  revalidatePath(`/characters/${characterId}`);
+  revalidatePath("/characters");
+  revalidatePath("/campaign");
+}

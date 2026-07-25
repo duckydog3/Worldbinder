@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import { getSessionContext } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
+import { getSignedImageUrl } from "@/lib/images";
 import { VisibilityBadge } from "@/components/VisibilityBadge";
+import { EntityImage } from "@/components/EntityImage";
 import { LoreEditForm } from "./LoreEditForm";
 import type { Character, Location, Npc } from "@/lib/types/database";
 
@@ -42,14 +44,19 @@ export default async function LoreDetailPage({ params }: { params: Promise<{ id:
     npcs = npcsRes.data ?? [];
   }
 
+  const imageUrl = await getSignedImageUrl(entry.image_url);
+
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <div>
-        <div className="flex items-center gap-2">
-          <span className="badge">{categoryLabel[entry.category]}</span>
-          {isDm && <VisibilityBadge visibility={entry.visibility} />}
+      <div className="flex items-start gap-4">
+        {imageUrl && <EntityImage url={imageUrl} alt={entry.title} className="h-16 w-16 rounded-md" />}
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="badge">{categoryLabel[entry.category]}</span>
+            {isDm && <VisibilityBadge visibility={entry.visibility} />}
+          </div>
+          <h1 className="mt-2 text-3xl font-semibold text-foreground">{entry.title}</h1>
         </div>
-        <h1 className="mt-2 text-3xl font-semibold text-foreground">{entry.title}</h1>
       </div>
 
       <div className="card p-5">

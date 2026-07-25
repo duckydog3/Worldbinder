@@ -1,7 +1,9 @@
 import { getSessionContext } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
+import { getSignedImageUrls } from "@/lib/images";
 import { DiscoveryBadge } from "@/components/DiscoveryBadge";
 import { VisibilityBadge } from "@/components/VisibilityBadge";
+import { EntityImage } from "@/components/EntityImage";
 import { LocationEditForm } from "./LocationEditForm";
 import { MapImageUpload } from "./MapImageUpload";
 import { AnnotationPanel } from "./AnnotationPanel";
@@ -53,6 +55,7 @@ export default async function MapPage() {
   const topLevel = locations.filter((l) => !l.parent_location_id);
   const childrenOf = (id: string) => locations.filter((l) => l.parent_location_id === id);
   const pinned = locations.filter((l) => l.map_x != null && l.map_y != null);
+  const imageUrls = await getSignedImageUrls(locations.map((l) => l.image_url));
 
   return (
     <div className="space-y-8">
@@ -96,6 +99,7 @@ export default async function MapPage() {
               characters={characters ?? []}
               allLocations={locations}
               secretsByLocationId={secretsByLocationId}
+              imageUrls={imageUrls}
             />
           ))}
         </div>
@@ -122,6 +126,7 @@ function LocationGroup({
   characters,
   allLocations,
   secretsByLocationId,
+  imageUrls,
 }: {
   location: Location;
   childLocations: Location[];
@@ -129,6 +134,7 @@ function LocationGroup({
   characters: import("@/lib/types/database").Character[];
   allLocations: Location[];
   secretsByLocationId: Map<string, LocationSecrets>;
+  imageUrls: Record<string, string>;
 }) {
   return (
     <div className="card p-5">
@@ -138,6 +144,7 @@ function LocationGroup({
         characters={characters}
         allLocations={allLocations}
         secrets={secretsByLocationId.get(location.id) ?? null}
+        imageUrls={imageUrls}
       />
       {childLocations.length > 0 && (
         <div className="mt-4 space-y-3 border-l-2 border-border pl-4">
@@ -149,6 +156,7 @@ function LocationGroup({
               characters={characters}
               allLocations={allLocations}
               secrets={secretsByLocationId.get(child.id) ?? null}
+              imageUrls={imageUrls}
             />
           ))}
         </div>
@@ -163,21 +171,32 @@ function LocationCard({
   characters,
   allLocations,
   secrets,
+  imageUrls,
 }: {
   location: Location;
   isDm: boolean;
   characters: import("@/lib/types/database").Character[];
   allLocations: Location[];
   secrets: LocationSecrets | null;
+  imageUrls: Record<string, string>;
 }) {
+  // Players only get the image once discovery_state is "discovered" — that's
+  // the same threshold that unlocks the full description_player text, so a
+  // "rumored" location stays a name/hint and doesn't leak a picture either.
+  const showImage = isDm || location.discovery_state === "discovered";
+  const imageUrl = showImage && location.image_url ? imageUrls[location.image_url] ?? null : null;
+
   return (
     <div>
       <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <p className="font-medium text-foreground">{location.name}</p>
-          {location.is_wound && <span className="badge badge-hidden">Wound</span>}
-          <DiscoveryBadge state={location.discovery_state} />
-          {isDm && <VisibilityBadge visibility={location.visibility} />}
+        <div className="flex items-center gap-3">
+          {imageUrl && <EntityImage url={imageUrl} alt={location.name} className="h-10 w-10 rounded-md" />}
+          <div className="flex items-center gap-2">
+            <p className="font-medium text-foreground">{location.name}</p>
+            {location.is_wound && <span className="badge badge-hidden">Wound</span>}
+            <DiscoveryBadge state={location.discovery_state} />
+            {isDm && <VisibilityBadge visibility={location.visibility} />}
+          </div>
         </div>
         {isDm && <LocationEditForm location={location} secrets={secrets} characters={characters} locations={allLocations} />}
       </div>

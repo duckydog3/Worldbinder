@@ -3,7 +3,8 @@
 import { useState } from "react";
 import type { Character, Location, Npc, NpcSecrets } from "@/lib/types/database";
 import { NpcFormFields } from "../NpcFormFields";
-import { updateNpc, deleteNpc } from "../actions";
+import { ImageUpload } from "@/components/ImageUpload";
+import { updateNpc, deleteNpc, setNpcImage } from "../actions";
 
 export function NpcEditForm({
   npc,
@@ -19,6 +20,7 @@ export function NpcEditForm({
   const [editing, setEditing] = useState(false);
   const action = updateNpc.bind(null, npc.id, npc.campaign_id);
   const removeAction = deleteNpc.bind(null, npc.id);
+  const imageAction = setNpcImage.bind(null, npc.id);
 
   if (!editing) {
     return (
@@ -37,6 +39,13 @@ export function NpcEditForm({
       className="card-raised space-y-5 p-5"
     >
       <h2 className="text-lg font-semibold text-foreground">Edit NPC</h2>
+
+      <ImageUpload
+        pathPrefix={`npcs/${npc.id}`}
+        currentPath={npc.portrait_url}
+        onChange={imageAction}
+        label="Portrait"
+      />
 
       <NpcFormFields npc={npc} secrets={secrets} characters={characters} locations={locations} />
 

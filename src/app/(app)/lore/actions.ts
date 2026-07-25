@@ -61,3 +61,11 @@ export async function deleteLoreEntry(entryId: string) {
   revalidatePath("/lore");
   redirect("/lore");
 }
+
+export async function setLoreImage(entryId: string, path: string | null) {
+  const supabase = await createClient();
+  await supabase.from("lore_entries").update({ image_url: path }).eq("id", entryId);
+
+  revalidatePath(`/lore/${entryId}`);
+  revalidatePath("/lore");
+}

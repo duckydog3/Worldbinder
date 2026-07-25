@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import { getSessionContext } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
+import { getSignedImageUrl } from "@/lib/images";
 import { VisibilityBadge } from "@/components/VisibilityBadge";
+import { EntityImage } from "@/components/EntityImage";
 import { NpcEditForm } from "./NpcEditForm";
 import type { Character, Location } from "@/lib/types/database";
 
@@ -43,10 +45,12 @@ export default async function NpcDetailPage({ params }: { params: Promise<{ id: 
     locations = locationsRes.data ?? [];
   }
 
+  const imageUrl = await getSignedImageUrl(npc.portrait_url);
+
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex items-start gap-5">
-        <div className="h-20 w-20 shrink-0 rounded-full bg-surface-raised" />
+        <EntityImage url={imageUrl} alt={npc.name} className="h-20 w-20 rounded-full" />
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <h1 className="text-3xl font-semibold text-foreground">{npc.name}</h1>

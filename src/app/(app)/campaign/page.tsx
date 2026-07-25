@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { getSessionContext } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
+import { getSignedImageUrls } from "@/lib/images";
+import { EntityImage } from "@/components/EntityImage";
 import { CampaignEditForm } from "./CampaignEditForm";
 
 export default async function CampaignHomePage() {
@@ -22,6 +24,11 @@ export default async function CampaignHomePage() {
     .eq("campaign_id", session.campaign.id)
     .order("updated_at", { ascending: false })
     .limit(6);
+
+  const imageUrls = await getSignedImageUrls([
+    ...(characters ?? []).map((c) => c.portrait_url),
+    ...(recentNpcs ?? []).map((n) => n.portrait_url),
+  ]);
 
   const { campaign } = session;
 
@@ -71,7 +78,11 @@ export default async function CampaignHomePage() {
               className="card p-4 transition-colors hover:border-accent"
             >
               <div className="flex items-center gap-3">
-                <div className="h-12 w-12 shrink-0 rounded-full bg-surface-raised" />
+                <EntityImage
+                  url={character.portrait_url ? imageUrls[character.portrait_url] ?? null : null}
+                  alt={character.name}
+                  className="h-12 w-12 rounded-full"
+                />
                 <div>
                   <p className="font-medium text-foreground">{character.name}</p>
                   <p className="text-sm text-muted">{character.short_description}</p>
@@ -97,8 +108,17 @@ export default async function CampaignHomePage() {
                 href={`/npcs/${npc.id}`}
                 className="card p-4 transition-colors hover:border-accent"
               >
-                <p className="font-medium text-foreground">{npc.name}</p>
-                <p className="text-sm text-muted">{npc.role_occupation}</p>
+                <div className="flex items-center gap-3">
+                  <EntityImage
+                    url={npc.portrait_url ? imageUrls[npc.portrait_url] ?? null : null}
+                    alt={npc.name}
+                    className="h-12 w-12 rounded-full"
+                  />
+                  <div>
+                    <p className="font-medium text-foreground">{npc.name}</p>
+                    <p className="text-sm text-muted">{npc.role_occupation}</p>
+                  </div>
+                </div>
               </Link>
             ))}
           </div>

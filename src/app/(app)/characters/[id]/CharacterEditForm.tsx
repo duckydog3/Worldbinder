@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import type { Character } from "@/lib/types/database";
-import { updateCharacter } from "../actions";
+import { ImageUpload } from "@/components/ImageUpload";
+import { updateCharacter, setCharacterImage } from "../actions";
 
-export function CharacterEditForm({ character }: { character: Character }) {
+export function CharacterEditForm({ character, isDm }: { character: Character; isDm: boolean }) {
   const [editing, setEditing] = useState(false);
   const action = updateCharacter.bind(null, character.id);
+  const imageAction = setCharacterImage.bind(null, character.id);
 
   if (!editing) {
     return (
@@ -24,6 +26,14 @@ export function CharacterEditForm({ character }: { character: Character }) {
       }}
       className="card-raised space-y-4 p-4"
     >
+      {isDm && (
+        <ImageUpload
+          pathPrefix={`characters/${character.id}`}
+          currentPath={character.portrait_url}
+          onChange={imageAction}
+          label="Portrait"
+        />
+      )}
       <div className="space-y-1">
         <label className="label" htmlFor="short_description">
           Short description

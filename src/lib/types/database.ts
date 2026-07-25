@@ -75,6 +75,7 @@ export type Location = {
   visibility: Visibility;
   revealed_to_character_ids: string[];
   is_wound: boolean;
+  image_url: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -123,6 +124,7 @@ export type LoreEntry = {
   revealed_to_character_ids: string[];
   related_location_id: string | null;
   related_npc_id: string | null;
+  image_url: string | null;
   created_at: string;
   updated_at: string;
 };

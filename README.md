@@ -33,15 +33,19 @@ npm run dev
 
 ## Database setup (do this once, against your actual Supabase project)
 
-There's no Docker in some environments (including the one this was built
-in), so the migrations below were written and type-checked against the
-schema, but **not executed against a live Postgres instance**. Run them
-yourself before trusting the app:
+All migrations below have already been applied to the live `worldbinder`
+Supabase project (`cjrohcpwdysstfvrtuho`) and verified with a full RLS
+checklist run (see [`docs/RLS_TEST_CHECKLIST.md`](docs/RLS_TEST_CHECKLIST.md)).
+If you're standing up a fresh project instead, run these yourself, in order:
 
 1. In the Supabase SQL editor, run the migrations in order:
    - `supabase/migrations/0001_init.sql` — tables, helper functions, indexes
    - `supabase/migrations/0002_rls.sql` — Row Level Security policies
    - `supabase/migrations/0003_map_image.sql` — map image storage bucket
+   - `supabase/migrations/0004_entity_images.sql` — character/NPC/location/lore
+     image support (private bucket, signed URLs — see `src/lib/images.ts`)
+   - `supabase/migrations/0005_fix_search_path.sql` — security hardening found
+     by Supabase's advisor after 0004 shipped
 2. Run `supabase/seed.sql` once — seeds the campaign, Lilly/Aiden/Brody, and
    the 5 hidden Wounds locations. It's a no-op if the campaign table isn't
    empty, so it's safe to run only once and leave alone after.

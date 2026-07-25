@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { getSessionContext } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
+import { getSignedImageUrls } from "@/lib/images";
 import { VisibilityBadge } from "@/components/VisibilityBadge";
+import { EntityImage } from "@/components/EntityImage";
 
 const categoryLabel: Record<string, string> = {
   history: "History",
@@ -23,6 +25,8 @@ export default async function LorePage() {
     .select("*")
     .eq("campaign_id", session.campaign.id)
     .order("title");
+
+  const imageUrls = await getSignedImageUrls((entries ?? []).map((e) => e.image_url));
 
   return (
     <div className="space-y-6">
@@ -46,11 +50,22 @@ export default async function LorePage() {
             href={`/lore/${entry.id}`}
             className="card p-4 transition-colors hover:border-accent"
           >
-            <div className="flex items-center justify-between">
-              <span className="badge">{categoryLabel[entry.category]}</span>
-              {isDm && <VisibilityBadge visibility={entry.visibility} />}
+            <div className="flex items-start gap-3">
+              {entry.image_url && (
+                <EntityImage
+                  url={imageUrls[entry.image_url] ?? null}
+                  alt={entry.title}
+                  className="h-12 w-12 rounded-md"
+                />
+              )}
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <span className="badge">{categoryLabel[entry.category]}</span>
+                  {isDm && <VisibilityBadge visibility={entry.visibility} />}
+                </div>
+                <p className="mt-2 font-medium text-foreground">{entry.title}</p>
+              </div>
             </div>
-            <p className="mt-2 font-medium text-foreground">{entry.title}</p>
           </Link>
         ))}
       </div>

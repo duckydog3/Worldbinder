@@ -3,7 +3,8 @@
 import { useState } from "react";
 import type { Character, Location, LocationSecrets } from "@/lib/types/database";
 import { LocationFormFields } from "./LocationFormFields";
-import { updateLocation, deleteLocation } from "./actions";
+import { ImageUpload } from "@/components/ImageUpload";
+import { updateLocation, deleteLocation, setLocationImage } from "./actions";
 
 export function LocationEditForm({
   location,
@@ -19,6 +20,7 @@ export function LocationEditForm({
   const [editing, setEditing] = useState(false);
   const action = updateLocation.bind(null, location.id, location.campaign_id);
   const removeAction = deleteLocation.bind(null, location.id);
+  const imageAction = setLocationImage.bind(null, location.id);
 
   if (!editing) {
     return (
@@ -36,6 +38,12 @@ export function LocationEditForm({
       }}
       className="card-raised mt-3 space-y-5 p-4"
     >
+      <ImageUpload
+        pathPrefix={`locations/${location.id}`}
+        currentPath={location.image_url}
+        onChange={imageAction}
+        label="Image"
+      />
       <LocationFormFields
         location={location}
         secrets={secrets}

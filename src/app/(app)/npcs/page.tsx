@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { getSessionContext } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
+import { getSignedImageUrls } from "@/lib/images";
 import { VisibilityBadge } from "@/components/VisibilityBadge";
+import { EntityImage } from "@/components/EntityImage";
 
 const statusLabel: Record<string, string> = {
   alive: "Alive",
@@ -23,6 +25,8 @@ export default async function NpcsPage() {
     .select("*")
     .eq("campaign_id", session.campaign.id)
     .order("name");
+
+  const imageUrls = await getSignedImageUrls((npcs ?? []).map((n) => n.portrait_url));
 
   return (
     <div className="space-y-6">
@@ -47,7 +51,11 @@ export default async function NpcsPage() {
             className="card p-4 transition-colors hover:border-accent"
           >
             <div className="flex items-start justify-between gap-2">
-              <div className="h-12 w-12 shrink-0 rounded-full bg-surface-raised" />
+              <EntityImage
+                url={npc.portrait_url ? imageUrls[npc.portrait_url] ?? null : null}
+                alt={npc.name}
+                className="h-12 w-12 rounded-full"
+              />
               {isDm && <VisibilityBadge visibility={npc.visibility} />}
             </div>
             <p className="mt-3 font-medium text-foreground">{npc.name}</p>
