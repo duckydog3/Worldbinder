@@ -76,8 +76,8 @@ begin
     (v_campaign_id, v_aiden_id, 'AIDEN-' || substr(md5(random()::text), 1, 6)),
     (v_campaign_id, v_brody_id, 'BRODY-' || substr(md5(random()::text), 1, 6));
 
-  insert into public.locations (campaign_id, name, type, description_player, discovery_state, visibility, is_wound)
-  values (v_campaign_id, 'Greyfen', 'region', null, 'discovered', 'revealed_to_party', false)
+  insert into public.locations (campaign_id, name, type, description_player, discovery_state, visibility, is_wound, map_x, map_y)
+  values (v_campaign_id, 'Greyfen', 'region', null, 'discovered', 'revealed_to_party', false, 50, 50)
   returning id into v_greyfen_id;
 
   insert into public.locations (campaign_id, parent_location_id, name, type, description_player, discovery_state, visibility, is_wound)

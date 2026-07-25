@@ -73,6 +73,20 @@ export async function setLocationImage(locationId: string, path: string | null) 
   const supabase = await createClient();
   await supabase.from("locations").update({ image_url: path }).eq("id", locationId);
   revalidatePath("/map");
+  revalidatePath(`/locations/${locationId}`);
+}
+
+// Dedicated action for the click/drag pin tool — doesn't touch any other
+// field, so it can fire on every drag-end without needing the full edit
+// form open. RLS (locations_update_dm) is still the real gate.
+export async function setLocationCoordinates(
+  locationId: string,
+  mapX: number | null,
+  mapY: number | null
+) {
+  const supabase = await createClient();
+  await supabase.from("locations").update({ map_x: mapX, map_y: mapY }).eq("id", locationId);
+  revalidatePath("/map");
 }
 
 export async function setMapImage(campaignId: string, url: string | null) {

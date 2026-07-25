@@ -6,6 +6,8 @@ import { VisibilityBadge } from "@/components/VisibilityBadge";
 import { EntityImage } from "@/components/EntityImage";
 import { LocationEditForm } from "./LocationEditForm";
 import { MapImageUpload } from "./MapImageUpload";
+import { MapPinEditor } from "./MapPinEditor";
+import { MapPinOverlay } from "./MapPinOverlay";
 import { AnnotationPanel } from "./AnnotationPanel";
 import Link from "next/link";
 import type { Location, LocationSecrets, MapAnnotation } from "@/lib/types/database";
@@ -54,7 +56,6 @@ export default async function MapPage() {
 
   const topLevel = locations.filter((l) => !l.parent_location_id);
   const childrenOf = (id: string) => locations.filter((l) => l.parent_location_id === id);
-  const pinned = locations.filter((l) => l.map_x != null && l.map_y != null);
   const imageUrls = await getSignedImageUrls(locations.map((l) => l.image_url));
 
   return (
@@ -70,18 +71,15 @@ export default async function MapPage() {
 
       {isDm && <MapImageUpload campaignId={session.campaign.id} currentUrl={session.campaign.map_image_url} />}
 
-      {session.campaign.map_image_url && (
+      {session.campaign.map_image_url && isDm && (
+        <MapPinEditor imageUrl={session.campaign.map_image_url} locations={locations} />
+      )}
+
+      {session.campaign.map_image_url && !isDm && (
         <div className="card relative overflow-hidden p-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={session.campaign.map_image_url} alt="Campaign map" className="w-full" />
-          {pinned.map((loc) => (
-            <div
-              key={loc.id}
-              title={loc.name}
-              className="absolute h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-background bg-accent"
-              style={{ left: `${loc.map_x}%`, top: `${loc.map_y}%` }}
-            />
-          ))}
+          <MapPinOverlay locations={locations} />
         </div>
       )}
 
@@ -192,7 +190,9 @@ function LocationCard({
         <div className="flex items-center gap-3">
           {imageUrl && <EntityImage url={imageUrl} alt={location.name} className="h-10 w-10 rounded-md" />}
           <div className="flex items-center gap-2">
-            <p className="font-medium text-foreground">{location.name}</p>
+            <Link href={`/locations/${location.id}`} className="font-medium text-foreground hover:text-accent">
+              {location.name}
+            </Link>
             {location.is_wound && <span className="badge badge-hidden">Wound</span>}
             <DiscoveryBadge state={location.discovery_state} />
             {isDm && <VisibilityBadge visibility={location.visibility} />}
