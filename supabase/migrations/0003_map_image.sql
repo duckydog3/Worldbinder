@@ -21,7 +21,10 @@ insert into storage.buckets (id, name, public)
 values ('map-images', 'map-images', true)
 on conflict (id) do nothing;
 
-alter table storage.objects enable row level security;
+-- storage.objects is owned by supabase_storage_admin, not postgres, so we
+-- can't (and don't need to) ALTER its RLS setting here — Supabase's storage
+-- extension already enables RLS on it by default. The `postgres` role does
+-- have CREATE POLICY privilege on it, which is all we need.
 
 create policy "map_images_public_read" on storage.objects
   for select
