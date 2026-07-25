@@ -12,7 +12,7 @@ export function MapPinOverlay({ locations }: { locations: Location[] }) {
       {pinned.map((loc) => (
         <Link
           key={loc.id}
-          href={`/locations/${loc.id}`}
+          href={loc.map_image_url ? `/map?at=${loc.id}` : `/locations/${loc.id}`}
           className="group absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1"
           style={{ left: `${loc.map_x}%`, top: `${loc.map_y}%` }}
         >

@@ -76,6 +76,7 @@ export type Location = {
   revealed_to_character_ids: string[];
   is_wound: boolean;
   image_url: string | null;
+  map_image_url: string | null;
   created_at: string;
   updated_at: string;
 };

@@ -7,9 +7,9 @@ import { createLocation } from "../actions";
 export default async function NewLocationPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; parent?: string }>;
 }) {
-  const { error } = await searchParams;
+  const { error, parent } = await searchParams;
   const session = await getSessionContext();
   if (!session) return null;
   if (session.membership.role !== "dm") redirect("/map");
@@ -31,7 +31,11 @@ export default async function NewLocationPage({
         </p>
       )}
       <form action={action} className="card-raised space-y-5 p-5">
-        <LocationFormFields characters={characters ?? []} locations={locations ?? []} />
+        <LocationFormFields
+          characters={characters ?? []}
+          locations={locations ?? []}
+          defaultParentId={parent}
+        />
         <button type="submit" className="btn btn-primary">
           Create location
         </button>

@@ -2,14 +2,17 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { setMapImage } from "./actions";
 
 export function MapImageUpload({
-  campaignId,
+  pathPrefix,
   currentUrl,
+  onChange,
+  label = "Map background image",
 }: {
-  campaignId: string;
+  pathPrefix: string;
   currentUrl: string | null;
+  onChange: (url: string | null) => Promise<void>;
+  label?: string;
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +22,7 @@ export function MapImageUpload({
     setError(null);
     try {
       const supabase = createClient();
-      const path = `${campaignId}/${Date.now()}-${file.name}`;
+      const path = `${pathPrefix}/${Date.now()}-${file.name}`;
       const { error: uploadError } = await supabase.storage
         .from("map-images")
         .upload(path, file, { upsert: true });
@@ -30,7 +33,7 @@ export function MapImageUpload({
         data: { publicUrl },
       } = supabase.storage.from("map-images").getPublicUrl(path);
 
-      await setMapImage(campaignId, publicUrl);
+      await onChange(publicUrl);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
     } finally {
@@ -41,7 +44,7 @@ export function MapImageUpload({
   return (
     <div className="card flex items-center justify-between gap-4 p-4">
       <div>
-        <p className="label">Map background image</p>
+        <p className="label">{label}</p>
         <p className="text-sm text-muted">
           {currentUrl ? "A map image is set." : "No image yet — showing the list view."}
         </p>
@@ -66,7 +69,7 @@ export function MapImageUpload({
             type="button"
             className="btn text-danger"
             disabled={busy}
-            onClick={() => setMapImage(campaignId, null)}
+            onClick={() => onChange(null)}
           >
             Remove
           </button>

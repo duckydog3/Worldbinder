@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getSessionContext } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
 import { getSignedImageUrls } from "@/lib/images";
@@ -9,10 +10,16 @@ import { MapImageUpload } from "./MapImageUpload";
 import { MapPinEditor } from "./MapPinEditor";
 import { MapPinOverlay } from "./MapPinOverlay";
 import { AnnotationPanel } from "./AnnotationPanel";
+import { setMapImage, setLocationMapImage } from "./actions";
 import Link from "next/link";
 import type { Location, LocationSecrets, MapAnnotation } from "@/lib/types/database";
 
-export default async function MapPage() {
+export default async function MapPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ at?: string }>;
+}) {
+  const { at } = await searchParams;
   const session = await getSessionContext();
   if (!session) return null;
   const isDm = session.membership.role === "dm";
@@ -31,6 +38,32 @@ export default async function MapPage() {
   // Fog of war, defense-in-depth: even if a row's visibility already lets it
   // through RLS, an "unknown" location still shouldn't render for players.
   const locations = (allLocations ?? []).filter((l) => isDm || l.discovery_state !== "unknown");
+
+  // Drill-down context: `at` names the location whose own local map is
+  // currently on screen. If it doesn't resolve to a location this viewer can
+  // see, fall back to the world map rather than leaking whether it exists.
+  let currentParent: Location | null = null;
+  if (at) {
+    currentParent = locations.find((l) => l.id === at) ?? null;
+    if (!currentParent) redirect("/map");
+  }
+
+  const mapImageUrl = currentParent ? currentParent.map_image_url : session.campaign.map_image_url;
+  // Only the current level's immediate children get pinned here — that's
+  // what keeps a nested location (e.g. the Wayhouse) off the world map.
+  const pinCandidates = locations.filter((l) =>
+    currentParent ? l.parent_location_id === currentParent.id : !l.parent_location_id
+  );
+
+  const breadcrumbChain: Location[] = [];
+  {
+    let cursor = currentParent;
+    while (cursor) {
+      breadcrumbChain.unshift(cursor);
+      const parentId: string | null = cursor.parent_location_id;
+      cursor = parentId ? locations.find((l) => l.id === parentId) ?? null : null;
+    }
+  }
 
   let secretsByLocationId = new Map<string, LocationSecrets>();
   if (isDm && locations.length > 0) {
@@ -63,23 +96,57 @@ export default async function MapPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-semibold text-foreground">Map</h1>
         {isDm && (
-          <Link href="/map/new" className="btn btn-primary">
+          <Link
+            href={currentParent ? `/map/new?parent=${currentParent.id}` : "/map/new"}
+            className="btn btn-primary"
+          >
             New location
           </Link>
         )}
       </div>
 
-      {isDm && <MapImageUpload campaignId={session.campaign.id} currentUrl={session.campaign.map_image_url} />}
+      <p className="text-sm text-muted">
+        <Link href="/map" className={!currentParent ? "text-foreground" : "hover:text-accent"}>
+          World Map
+        </Link>
+        {breadcrumbChain.map((loc, i) => (
+          <span key={loc.id}>
+            {" / "}
+            {i < breadcrumbChain.length - 1 ? (
+              <Link href={`/map?at=${loc.id}`} className="hover:text-accent">
+                {loc.name}
+              </Link>
+            ) : (
+              <span className="text-foreground">{loc.name}</span>
+            )}
+          </span>
+        ))}
+      </p>
 
-      {session.campaign.map_image_url && isDm && (
-        <MapPinEditor imageUrl={session.campaign.map_image_url} locations={locations} />
+      {isDm && (
+        <MapImageUpload
+          pathPrefix={currentParent ? currentParent.id : session.campaign.id}
+          currentUrl={mapImageUrl}
+          onChange={
+            currentParent
+              ? setLocationMapImage.bind(null, currentParent.id)
+              : setMapImage.bind(null, session.campaign.id)
+          }
+          label={currentParent ? `${currentParent.name}'s map image` : "World map image"}
+        />
       )}
 
-      {session.campaign.map_image_url && !isDm && (
+      {mapImageUrl && isDm && <MapPinEditor imageUrl={mapImageUrl} locations={pinCandidates} />}
+
+      {mapImageUrl && !isDm && (
         <div className="card relative overflow-hidden p-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={session.campaign.map_image_url} alt="Campaign map" className="w-full" />
-          <MapPinOverlay locations={locations} />
+          <img
+            src={mapImageUrl}
+            alt={currentParent ? `${currentParent.name} map` : "Campaign map"}
+            className="w-full"
+          />
+          <MapPinOverlay locations={pinCandidates} />
         </div>
       )}
 
@@ -193,6 +260,11 @@ function LocationCard({
             <Link href={`/locations/${location.id}`} className="font-medium text-foreground hover:text-accent">
               {location.name}
             </Link>
+            {(location.map_image_url || isDm) && (
+              <Link href={`/map?at=${location.id}`} className="text-xs text-accent hover:underline">
+                {location.map_image_url ? "open map" : "add a local map"}
+              </Link>
+            )}
             {location.is_wound && <span className="badge badge-hidden">Wound</span>}
             <DiscoveryBadge state={location.discovery_state} />
             {isDm && <VisibilityBadge visibility={location.visibility} />}

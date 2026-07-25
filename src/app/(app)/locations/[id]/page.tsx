@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSessionContext } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
@@ -65,6 +66,11 @@ export default async function LocationDetailPage({
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <DiscoveryBadge state={location.discovery_state} />
             {isDm && <VisibilityBadge visibility={location.visibility} />}
+            {(location.map_image_url || isDm) && (
+              <Link href={`/map?at=${location.id}`} className="text-xs text-accent hover:underline">
+                {location.map_image_url ? "open map" : "add a local map"}
+              </Link>
+            )}
           </div>
         </div>
       </div>

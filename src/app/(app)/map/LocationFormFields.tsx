@@ -6,11 +6,13 @@ export function LocationFormFields({
   secrets,
   characters,
   locations,
+  defaultParentId,
 }: {
   location?: Location;
   secrets?: LocationSecrets | null;
   characters: Character[];
   locations: Location[];
+  defaultParentId?: string;
 }) {
   return (
     <>
@@ -49,7 +51,7 @@ export function LocationFormFields({
             className="input"
             id="parent_location_id"
             name="parent_location_id"
-            defaultValue={location?.parent_location_id ?? ""}
+            defaultValue={location?.parent_location_id ?? defaultParentId ?? ""}
           >
             <option value="">— top level —</option>
             {locations

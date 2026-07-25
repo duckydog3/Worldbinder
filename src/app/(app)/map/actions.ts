@@ -95,6 +95,14 @@ export async function setMapImage(campaignId: string, url: string | null) {
   revalidatePath("/map");
 }
 
+// A location's own "local" map — its children get pinned onto this instead
+// of the world map once it's set.
+export async function setLocationMapImage(locationId: string, url: string | null) {
+  const supabase = await createClient();
+  await supabase.from("locations").update({ map_image_url: url }).eq("id", locationId);
+  revalidatePath("/map");
+}
+
 export async function addAnnotation(
   campaignId: string,
   characterId: string | null,

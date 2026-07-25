@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Link from "next/link";
 import type { Location, Visibility } from "@/lib/types/database";
 import { setLocationCoordinates } from "./actions";
 
@@ -118,9 +119,13 @@ export function MapPinEditor({ imageUrl, locations }: { imageUrl: string; locati
                 className={`h-3.5 w-3.5 cursor-grab rounded-full border-2 border-background shadow active:cursor-grabbing ${visibilityDotClass[loc.visibility]}`}
                 title={`Drag to reposition ${loc.name}`}
               />
-              <span className="whitespace-nowrap rounded bg-surface/90 px-1.5 py-0.5 text-xs text-foreground shadow">
+              <Link
+                href={loc.map_image_url ? `/map?at=${loc.id}` : `/locations/${loc.id}`}
+                onClick={(e) => e.stopPropagation()}
+                className="whitespace-nowrap rounded bg-surface/90 px-1.5 py-0.5 text-xs text-foreground shadow hover:text-accent"
+              >
                 {loc.name}
-              </span>
+              </Link>
               <button
                 type="button"
                 className="text-[10px] text-muted hover:text-danger"

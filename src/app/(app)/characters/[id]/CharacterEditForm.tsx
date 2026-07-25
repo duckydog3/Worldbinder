@@ -35,6 +35,25 @@ export function CharacterEditForm({ character, isDm }: { character: Character; i
         />
       )}
       <div className="space-y-1">
+        <label className="label" htmlFor="name">
+          Name
+        </label>
+        <input className="input" id="name" name="name" defaultValue={character.name} required />
+      </div>
+      {isDm && (
+        <div className="space-y-1">
+          <label className="label" htmlFor="player_name">
+            Player name
+          </label>
+          <input
+            className="input"
+            id="player_name"
+            name="player_name"
+            defaultValue={character.player_name ?? ""}
+          />
+        </div>
+      )}
+      <div className="space-y-1">
         <label className="label" htmlFor="short_description">
           Short description
         </label>
